@@ -1,0 +1,7 @@
+[theme]
+# Cores da Logo: Ciano/Azul para o primary, Laranja para o secondary
+primaryColor="#00BFFF"  # Deep Sky Blue (similar ao azul da logo)
+backgroundColor="#0e1117" # Fundo dark theme
+secondaryBackgroundColor="#FF8C00" # Dark Orange (similar ao laranja da fênix)
+textColor="#FAFAFA" # Texto branco
+font="sans serif"
