@@ -11,7 +11,7 @@ from PIL import Image
 # ===============================================
 # AVISO DE SEGURANÇA: RISCO ALTO! Remova a chave do código após o teste!
 
-# CHAVE DE API INSERIDA DIRETAMENTE AQUI, CONFORME SOLICITADO
+# SUA CHAVE DE API INSERIDA DIRETAMENTE AQUI
 API_KEY = "AIzaSyDRdaDm5k9RMMvJ8IaG44C6N6f1yIF8Hdg" 
 
 # Verifica se a chave foi carregada
