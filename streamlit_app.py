@@ -9,15 +9,12 @@ from PIL import Image
 # ===============================================
 # CONFIGURAÇÃO DA IA (CHAVE DE API) 🔑
 # ===============================================
-# AVISO DE SEGURANÇA: RISCO ALTO! Remova a chave do código após o teste!
-
-# SUA CHAVE DE API INSERIDA DIRETAMENTE AQUI
-API_KEY = "AIzaSyDRdaDm5k9RMMvJ8IaG44C6N6f1yIF8Hdg" 
+# LÊ A CHAVE DA VARIÁVEL DE AMBIENTE/SECRETS (MÉTODO SEGURO)
+API_KEY = os.environ.get("GEMINI_API_KEY") 
 
 # Verifica se a chave foi carregada
-if not API_KEY or API_KEY == "AIzaSyDRdaDm5k9RMMvJ8IaG44C6N6f1yIF8Hdg":
-    # Este erro só aparecerá se a chave for apagada
-    st.error("Erro: A chave GEMINI_API_KEY não foi inserida. Verifique o código.")
+if not API_KEY:
+    st.error("Erro: A chave GEMINI_API_KEY não foi configurada nos Secrets do Streamlit Cloud.")
     st.stop()
     
 client = genai.Client(api_key=API_KEY)
