@@ -18,15 +18,15 @@ client = genai.Client(api_key=API_KEY)
 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.9 - REGRA DE PREÇO FINAL)
-# *** Esta instrução garante que o preço seja justo e não extrapole R$ 50 do valor de mercado. ***
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.10 - PRECIFICAÇÃO CONDICIONAL)
+# *** Esta instrução trata produtos 'Novos' de forma diferente. ***
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. **PREÇO JUSTO E NÃO EXTRAPOLANTE**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão final de preço **NÃO DEVE EXTRAPOLAR R$ 50 REAIS ACIMA DO PREÇO MAIS COMUM E REALISTA ENCONTRADO NO MERCADO** para garantir que o produto seja competitivo e percebido como um bom negócio. Use o preço mais próximo do valor justo para o estado do produto."
+    "1. **PREÇO JUSTO E COMPETITIVO**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. **Se o estado for 'Novo (lacrado)', a sugestão de preço DEVE ser PRATICAMENTE IDÊNTICA ao preço de varejo mais competitivo, visando a liquidez máxima.** Para produtos usados ou seminovos, sugira um preço que não extrapole R$ 50 do valor justo de mercado para garantir uma margem justa, mas sempre focado na atratividade de compra."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -157,5 +157,4 @@ with st.form("cliqlinks_form", clear_on_submit=True):
 st.subheader("Histórico de Análises")
 
 for idea in reversed(st.session_state.generated_ideas):
-    with st.expander(f"Análise Gerada às {idea['timestamp']}"):
-        st.markdown(idea["text"])
+    with st.expander(f"Análise Ger
