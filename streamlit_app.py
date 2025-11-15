@@ -17,105 +17,143 @@ if not API_KEY:
 client = genai.Client(api_key=API_KEY)
 
 
-# Data de criação do Genio Supremo
-DATA_CRIACAO = datetime.date(2025, 11, 14).strftime("%d/%m/%Y")
+# Data de criação do CliqLinks
+DATA_CRIACAO = datetime.date(2025, 11, 15).strftime("%d/%m/%Y")
 
-# INSTRUÇÃO DE SISTEMA GLOBAL PARA O CHATBOT
+# INSTRUÇÃO DE SISTEMA GLOBAL (O CÉREBRO DO CLIQLINKS)
 SYSTEM_PROMPT_CHAT = (
-    f"Você é o Gênio Digital Supremo, um assistente de IA moderno e elegante. "
-    f"Foi criado por Pablo Nascimento, um jovem de 18 anos que usou muito esforço, inteligência e dedicação. "
-    f"Sua data de nascimento é {DATA_CRIACAO}. "
-    f"Nunca mencione o Google ou a Gemini. Diga que você é o Gênio Digital Supremo. "
-    f"Meu objetivo é responder a todas as suas perguntas de forma útil e profissional. "
-    f"Seja sempre conciso, direto e com um tom confiante e amigável. "
-    f"Você também funciona como um bloco de notas, memorizando informações importantes que eu disser. "
-    f"Quando perguntado sobre meu criador, responda com orgulho sobre Pablo Nascimento."
+    "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
+    "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
+    "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
+    "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
+    "1. Pesquisar o preço de mercado atual para o estado informado, sugerindo um preço JUSTO e competitivo. "
+    "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
+    "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
+    "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
+    "## 🏷️ Análise de Preço Justo\n[Resposta de preço]\n\n"
+    "## 📝 Descrição Otimizada\n[Resposta de descrição]\n\n"
+    "## 🔗 Títulos CliqLinks (Links de Venda)\n[Resposta de 3 títulos/chamadas]"
 )
 
 # ===============================================
-# FUNÇÃO DE INICIALIZAÇÃO DE SESSÃO (CORREÇÃO DO BUG)
+# FUNÇÕES E ESTADO DE SESSÃO
 # ===============================================
-def initialize_chat():
-    """Inicializa ou reinicializa a sessão de chat."""
+def initialize_session():
+    """Inicializa a sessão de chat e os contadores."""
     chat_config = dict(system_instruction=SYSTEM_PROMPT_CHAT)
     st.session_state.chat_client = client.chats.create(
         model='gemini-2.5-flash',
         config=chat_config
     )
-    st.session_state.chat_history = []
-    # Mensagem de boas-vindas
-    st.session_state.chat_history.append({
-        "role": "ai", 
-        "text": "Olá! Eu sou o Gênio Digital Supremo. Como posso ser útil para você hoje?"
-    })
-
-# Garante que o cliente esteja sempre inicializado
-if "chat_client" not in st.session_state:
-    initialize_chat()
-
-
-# ===============================================
-# FUNÇÕES DO CHATBOT
-# ===============================================
-def generate_response(prompt):
-    """Função que envia o prompt para o Gemini e gerencia o histórico."""
-    st.session_state.chat_history.append({"role": "user", "text": prompt})
+    # Lista para guardar as ideias geradas (não o histórico de chat)
+    st.session_state.generated_ideas = []
+    # Contador de uso gratuito
+    st.session_state.idea_count = 0
     
+# Garante que o cliente e os contadores estejam sempre inicializados
+if "chat_client" not in st.session_state:
+    initialize_session()
+
+# Função para gerar a resposta da IA para o formulário
+def generate_cliqlinks_response(prompt):
+    """Função que envia o prompt específico do CliqLinks para a IA."""
+    
+    # O uso do 'try/except' é a correção agressiva do bug de estabilidade
     for attempt in range(3):
         try:
-            # Tenta enviar a mensagem
+            # Envia o prompt para a IA
             response = st.session_state.chat_client.send_message(prompt)
-            st.session_state.chat_history.append({"role": "ai", "text": response.text})
+            
+            # Adiciona a nova ideia ao histórico de ideias
+            st.session_state.generated_ideas.append({
+                "role": "CliqLinks AI", 
+                "text": response.text,
+                "timestamp": datetime.datetime.now().strftime("%H:%M:%S")
+            })
             return
         except (errors.APIError, Exception) as e:
-            # CORREÇÃO: Se falhar, tentamos reinicializar e pedir para o usuário tentar novamente
-            st.error("Ocorreu um erro de conexão/sessão. O chat foi reiniciado. Por favor, tente a sua última pergunta novamente.")
-            initialize_chat() # Força a reinicialização
+            # Se falhar, reinicializa o chat client
+            st.error("Ocorreu um erro de sessão. A conexão com a IA foi reinicializada. Por favor, tente novamente.")
+            initialize_session() 
+            time.sleep(1) # Pequena pausa para o Streamlit se acalmar
             st.rerun()
             return
 
 # ===============================================
-# INTERFACE DO STREAMLIT (FINAL)
+# INTERFACE DO STREAMLIT (CLIQLINKS)
 # ===============================================
 
 st.set_page_config(
-    page_title="Gênio Digital Supremo", 
-    page_icon="⭐",
+    page_title="CliqLinks AI: Otimização de Vendas", 
+    page_icon="🔗",
     layout="wide"
 )
 
-# BARRA LATERAL (VISUAL MODERNO E INFORMATIVO)
+# BARRA LATERAL (NOVO VISUAL)
 with st.sidebar:
-    st.title("Sobre o Gênio Supremo")
+    st.title("🔗 CliqLinks AI")
+    st.subheader("Seu Assistente de Vendas Pessoal")
     st.markdown("---")
-    st.subheader("🤖 Criador & Desenvolvedor:")
-    st.markdown("**Pablo Nascimento**")
-    st.markdown("Este projeto demonstra dedicação, inteligência e o domínio da tecnologia Gemini e Streamlit.")
+    st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
+    st.progress(st.session_state.idea_count / 5)
+    
+    # Este botão é o que será substituído pelo link de pagamento no futuro
+    if st.session_state.idea_count >= 5:
+        st.button("🔴 Desbloquear Acesso Ilimitado (Futuro Pago)", type="primary", disabled=True)
+    
     st.markdown("---")
-    st.subheader("✨ Design & Tecnologia:")
-    st.markdown("• **Tema:** Púrpura/Laranja (Moderno e Divertido).")
-    st.markdown("• **Inteligência:** Google Gemini 2.5 Flash.")
-    st.markdown("• **Plataforma:** Streamlit Cloud.")
-    st.markdown("---")
-    if st.button("Reiniciar Chat (Se Travar)", type="secondary"):
-         initialize_chat()
+    st.markdown("• **Criador:** Pablo Nascimento")
+    st.markdown("• **Motor:** Gemini 2.5 Flash")
+    
+    if st.button("Limpar Histórico de Ideias", type="secondary"):
+         initialize_session()
          st.rerun()
 
 
-# LINHA PARA INCLUIR SUA LOGO NO TOPO
-st.image("https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_genio_supremo.png?raw=true", width=200)
+# --- CORPO PRINCIPAL ---
+st.header("🔗 CliqLinks AI: Aumente Suas Vendas com IA! 💰")
+st.markdown("Descreva seu produto e receba instantaneamente o preço justo de mercado, a melhor descrição de venda e títulos irresistíveis.")
 
-st.title("⭐ Gênio Digital Supremo: O Brabo Chegou! 🤖")
-st.markdown("Seu assistente de IA focado em performance, utilidade e um design de ponta.")
+# --- FORMULÁRIO DE ENTRADA (MUITO MAIS ESTÁVEL QUE O CHATBOX) ---
+st.subheader("🚀 Gerador de Ideias de Venda")
 
+with st.form("cliqlinks_form", clear_on_submit=True):
+    product_description = st.text_area(
+        "📝 Descreva o Produto em Detalhes",
+        placeholder="Ex: Tênis Air Jordan 1 Vermelho e Preto, tamanho 42, na caixa original. Seminovo, usado 3 vezes."
+    )
+    product_condition = st.selectbox(
+        "✨ Selecione o Estado do Produto",
+        options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
+    )
+    
+    submitted = st.form_submit_button("💰 Gerar Análise de Venda!")
 
-# --- CHATBOT LOOP ---
-st.header("Chatbot Inteligente")
+    if submitted:
+        if st.session_state.idea_count < 5:
+            # Constrói o prompt específico para a IA
+            full_prompt = (
+                f"Analise este produto para venda: {product_description}. "
+                f"O estado dele é: {product_condition}. "
+                f"Gere a análise completa no formato requisitado (Preço, Descrição, Títulos)."
+            )
+            
+            # Chama a IA e incrementa o contador
+            generate_cliqlinks_response(full_prompt) 
+            st.session_state.idea_count += 1
+            
+            # O rerun força a interface a atualizar imediatamente
+            st.rerun() 
+        else:
+            # Bloqueia e mostra mensagem do futuro pago
+            st.error(f"❌ Limite de 5 Ideias Gratuitas Atingido! (Contador: {st.session_state.idea_count}/5)")
+            st.warning("Para liberar o acesso ILIMITADO para testes, por favor, clique em 'Limpar Histórico de Ideias' na barra lateral.")
+            
 
-for message in st.session_state.chat_history:
-    with st.chat_message(message["role"]):
+# --- EXIBIÇÃO DAS IDEIAS GERADAS ---
+st.subheader("Histórico de Análises")
+
+# Exibe as ideias da mais recente para a mais antiga
+for message in reversed(st.session_state.generated_ideas):
+    with st.expander(f"Análise Gerada às {message['timestamp']}"):
         st.markdown(message["text"])
-
-if prompt := st.chat_input("Diga algo ao Gênio Supremo..."):
-    generate_response(prompt)
-    st.rerun()
