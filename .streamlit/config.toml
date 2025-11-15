@@ -1,7 +1,7 @@
 [theme]
-# Cores da Logo: Ciano/Azul para o primary, Laranja para o secondary
-primaryColor="#00BFFF"  # Deep Sky Blue (similar ao azul da logo)
-backgroundColor="#0e1117" # Fundo dark theme
-secondaryBackgroundColor="#FF8C00" # Dark Orange (similar ao laranja da fênix)
-textColor="#FAFAFA" # Texto branco
+# Tema Preto Total e Cores Neon que combinam com a logo do Gênio Supremo
+primaryColor="#00CED1"  # Dark Turquoise (o ciano vibrante da logo)
+backgroundColor="#000000" # Preto Puro (máximo contraste, alta tecnologia)
+secondaryBackgroundColor="#1E1E1E" # Cinza Escuro para caixas de texto e sidebar
+textColor="#FFFFFF" # Texto branco puro
 font="sans serif"
