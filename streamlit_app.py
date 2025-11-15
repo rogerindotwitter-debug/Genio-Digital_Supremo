@@ -34,7 +34,6 @@ SYSTEM_PROMPT_CHAT = (
     f"Quando perguntado sobre meu criador, responda com orgulho sobre Pablo Nascimento."
 )
 
-# CORREÇÃO DO ERRO 'CLIENT CLOSED': 
 # Garante que o chat_client seja inicializado corretamente.
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -59,7 +58,7 @@ def generate_response(prompt):
             st.session_state.chat_history.append({"role": "ai", "text": response.text})
             return
         except (errors.APIError, Exception) as e:
-            # Se o cliente fechar, reinicializamos a sessão para permitir o uso contínuo
+            # CORREÇÃO DEFINITIVA DO BUG 'CLIENT CLOSED'
             if "client has been closed" in str(e):
                 # Limpa a sessão e reinicia
                 st.session_state.pop("chat_client", None)
