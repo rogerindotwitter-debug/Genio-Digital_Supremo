@@ -14,14 +14,12 @@ if not API_KEY:
     st.error("Erro: A chave GEMINI_API_KEY não foi configurada nos Secrets do Streamlit Cloud.")
     st.stop()
     
+# Inicializa o cliente da API
 client = genai.Client(api_key=API_KEY)
 
 
-# Data de criação do CliqLinks
-DATA_CRIACAO = datetime.date(2025, 11, 15).strftime("%d/%m/%Y")
-
 # INSTRUÇÃO DE SISTEMA GLOBAL (O CÉREBRO DO CLIQLINKS)
-SYSTEM_PROMPT_CHAT = (
+SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
@@ -35,34 +33,27 @@ SYSTEM_PROMPT_CHAT = (
     "## 🔗 Títulos CliqLinks (Links de Venda)\n[Resposta de 3 títulos/chamadas]"
 )
 
-# ===============================================
-# FUNÇÕES E ESTADO DE SESSÃO
-# ===============================================
-def initialize_session():
-    """Inicializa a sessão de chat e os contadores."""
-    chat_config = dict(system_instruction=SYSTEM_PROMPT_CHAT)
-    st.session_state.chat_client = client.chats.create(
-        model='gemini-2.5-flash',
-        config=chat_config
-    )
-    # Lista para guardar as ideias geradas (não o histórico de chat)
+# Inicializa o estado de sessão
+if "generated_ideas" not in st.session_state:
     st.session_state.generated_ideas = []
-    # Contador de uso gratuito
+if "idea_count" not in st.session_state:
     st.session_state.idea_count = 0
-    
-# Garante que o cliente e os contadores estejam sempre inicializados
-if "chat_client" not in st.session_state:
-    initialize_session()
 
-# Função para gerar a resposta da IA para o formulário
+# ===============================================
+# FUNÇÃO DE GERAÇÃO (AGORA SEM O CHAT_CLIENT)
+# ===============================================
 def generate_cliqlinks_response(prompt):
-    """Função que envia o prompt específico do CliqLinks para a IA."""
+    """Função que envia o prompt diretamente para o modelo (Mais estável)."""
     
     # O uso do 'try/except' é a correção agressiva do bug de estabilidade
     for attempt in range(3):
         try:
-            # Envia o prompt para a IA
-            response = st.session_state.chat_client.send_message(prompt)
+            # Chama a API de forma direta e sem manter um histórico de chat
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=[prompt],
+                config=dict(system_instruction=SYSTEM_PROMPT_CLIQLINKS)
+            )
             
             # Adiciona a nova ideia ao histórico de ideias
             st.session_state.generated_ideas.append({
@@ -72,11 +63,8 @@ def generate_cliqlinks_response(prompt):
             })
             return
         except (errors.APIError, Exception) as e:
-            # Se falhar, reinicializa o chat client
-            st.error("Ocorreu um erro de sessão. A conexão com a IA foi reinicializada. Por favor, tente novamente.")
-            initialize_session() 
-            time.sleep(1) # Pequena pausa para o Streamlit se acalmar
-            st.rerun()
+            st.error(f"Ocorreu um erro de conexão/API. Por favor, tente novamente. Detalhes: {e}")
+            time.sleep(1)
             return
 
 # ===============================================
@@ -89,7 +77,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# BARRA LATERAL (NOVO VISUAL)
+# FUNÇÃO PARA RESETAR A SESSÃO
+def reset_session():
+     st.session_state.generated_ideas = []
+     st.session_state.idea_count = 0
+     st.rerun()
+
+# BARRA LATERAL (VISUAL MODERNO E CONFORME O TEMA)
 with st.sidebar:
     st.title("🔗 CliqLinks AI")
     st.subheader("Seu Assistente de Vendas Pessoal")
@@ -97,24 +91,22 @@ with st.sidebar:
     st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
     st.progress(st.session_state.idea_count / 5)
     
-    # Este botão é o que será substituído pelo link de pagamento no futuro
     if st.session_state.idea_count >= 5:
-        st.button("🔴 Desbloquear Acesso Ilimitado (Futuro Pago)", type="primary", disabled=True)
+        st.button("🔴 Desbloquear Acesso (Futuro Pago)", type="primary", disabled=True)
     
     st.markdown("---")
     st.markdown("• **Criador:** Pablo Nascimento")
     st.markdown("• **Motor:** Gemini 2.5 Flash")
     
     if st.button("Limpar Histórico de Ideias", type="secondary"):
-         initialize_session()
-         st.rerun()
+         reset_session()
 
 
 # --- CORPO PRINCIPAL ---
 st.header("🔗 CliqLinks AI: Aumente Suas Vendas com IA! 💰")
 st.markdown("Descreva seu produto e receba instantaneamente o preço justo de mercado, a melhor descrição de venda e títulos irresistíveis.")
 
-# --- FORMULÁRIO DE ENTRADA (MUITO MAIS ESTÁVEL QUE O CHATBOX) ---
+# --- FORMULÁRIO DE ENTRADA (MUITO MAIS ESTÁVEL) ---
 st.subheader("🚀 Gerador de Ideias de Venda")
 
 with st.form("cliqlinks_form", clear_on_submit=True):
@@ -131,6 +123,10 @@ with st.form("cliqlinks_form", clear_on_submit=True):
 
     if submitted:
         if st.session_state.idea_count < 5:
+            if not product_description:
+                 st.error("Por favor, preencha a descrição do produto.")
+                 st.stop()
+
             # Constrói o prompt específico para a IA
             full_prompt = (
                 f"Analise este produto para venda: {product_description}. "
@@ -138,22 +134,20 @@ with st.form("cliqlinks_form", clear_on_submit=True):
                 f"Gere a análise completa no formato requisitado (Preço, Descrição, Títulos)."
             )
             
-            # Chama a IA e incrementa o contador
+            # Chama a IA, incrementa o contador e força a atualização
             generate_cliqlinks_response(full_prompt) 
             st.session_state.idea_count += 1
-            
-            # O rerun força a interface a atualizar imediatamente
-            st.rerun() 
+            st.rerun()
         else:
             # Bloqueia e mostra mensagem do futuro pago
             st.error(f"❌ Limite de 5 Ideias Gratuitas Atingido! (Contador: {st.session_state.idea_count}/5)")
-            st.warning("Para liberar o acesso ILIMITADO para testes, por favor, clique em 'Limpar Histórico de Ideias' na barra lateral.")
+            st.warning("Para continuar testando, clique em 'Limpar Histórico de Ideias' na barra lateral.")
             
 
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
 # Exibe as ideias da mais recente para a mais antiga
-for message in reversed(st.session_state.generated_ideas):
-    with st.expander(f"Análise Gerada às {message['timestamp']}"):
-        st.markdown(message["text"])
+for idea in reversed(st.session_state.generated_ideas):
+    with st.expander(f"Análise Gerada às {idea['timestamp']}"):
+        st.markdown(idea["text"])
