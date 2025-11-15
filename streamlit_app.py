@@ -8,10 +8,8 @@ from google.genai import errors
 # ===============================================
 # CONFIGURAÇÃO DA IA (CHAVE DE API) 🔑
 # ===============================================
-# LÊ A CHAVE DA VARIÁVEL DE AMBIENTE/SECRETS (MÉTODO SEGURO)
 API_KEY = os.environ.get("GEMINI_API_KEY") 
 
-# Verifica se a chave foi carregada
 if not API_KEY:
     st.error("Erro: A chave GEMINI_API_KEY não foi configurada nos Secrets do Streamlit Cloud.")
     st.stop()
@@ -34,15 +32,27 @@ SYSTEM_PROMPT_CHAT = (
     f"Quando perguntado sobre meu criador, responda com orgulho sobre Pablo Nascimento."
 )
 
-# Garante que o chat_client seja inicializado corretamente.
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-if "chat_client" not in st.session_state:
+# ===============================================
+# FUNÇÃO DE INICIALIZAÇÃO DE SESSÃO (CORREÇÃO DO BUG)
+# ===============================================
+def initialize_chat():
+    """Inicializa ou reinicializa a sessão de chat."""
     chat_config = dict(system_instruction=SYSTEM_PROMPT_CHAT)
     st.session_state.chat_client = client.chats.create(
         model='gemini-2.5-flash',
         config=chat_config
     )
+    st.session_state.chat_history = []
+    # Mensagem de boas-vindas
+    st.session_state.chat_history.append({
+        "role": "ai", 
+        "text": "Olá! Eu sou o Gênio Digital Supremo. Como posso ser útil para você hoje?"
+    })
+
+# Garante que o cliente esteja sempre inicializado
+if "chat_client" not in st.session_state:
+    initialize_chat()
+
 
 # ===============================================
 # FUNÇÕES DO CHATBOT
@@ -58,26 +68,14 @@ def generate_response(prompt):
             st.session_state.chat_history.append({"role": "ai", "text": response.text})
             return
         except (errors.APIError, Exception) as e:
-            # CORREÇÃO DEFINITIVA DO BUG 'CLIENT CLOSED'
-            if "client has been closed" in str(e):
-                # Limpa a sessão e reinicia
-                st.session_state.pop("chat_client", None)
-                st.session_state.pop("chat_history", None)
-                st.error("Ocorreu um erro de conexão/sessão. O chat foi reiniciado. Tente novamente.")
-                st.rerun()
-                return
-            
-            # Tratamento de outros erros
-            if attempt < 2:
-                time.sleep(2)
-                continue
-            else:
-                error_message = f"❌ Erro no Chatbot: Falha de conexão na API do Gênio Supremo. Tente novamente. (Detalhes: {e})"
-                st.session_state.chat_history.append({"role": "ai", "text": error_message})
-                return
+            # CORREÇÃO: Se falhar, tentamos reinicializar e pedir para o usuário tentar novamente
+            st.error("Ocorreu um erro de conexão/sessão. O chat foi reiniciado. Por favor, tente a sua última pergunta novamente.")
+            initialize_chat() # Força a reinicialização
+            st.rerun()
+            return
 
 # ===============================================
-# INTERFACE DO STREAMLIT (APENAS CHAT)
+# INTERFACE DO STREAMLIT (FINAL)
 # ===============================================
 
 st.set_page_config(
@@ -86,7 +84,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# INFORMAÇÕES EXTRAS NA BARRA LATERAL (MODERNO E INFORMATIVO)
+# BARRA LATERAL (VISUAL MODERNO E INFORMATIVO)
 with st.sidebar:
     st.title("Sobre o Gênio Supremo")
     st.markdown("---")
@@ -95,12 +93,13 @@ with st.sidebar:
     st.markdown("Este projeto demonstra dedicação, inteligência e o domínio da tecnologia Gemini e Streamlit.")
     st.markdown("---")
     st.subheader("✨ Design & Tecnologia:")
-    st.markdown("• **Design Visual:** Tema personalizado em preto e ciano/laranja (cores da logo).")
-    st.markdown("• **Inteligência:** Google Gemini 2.5 Flash (Foco em performance e texto).")
+    st.markdown("• **Tema:** Púrpura/Laranja (Moderno e Divertido).")
+    st.markdown("• **Inteligência:** Google Gemini 2.5 Flash.")
     st.markdown("• **Plataforma:** Streamlit Cloud.")
     st.markdown("---")
-    st.subheader("⚙️ Status da API:")
-    st.markdown("Conexão com o Gemini: **ATIVA**")
+    if st.button("Reiniciar Chat (Se Travar)", type="secondary"):
+         initialize_chat()
+         st.rerun()
 
 
 # LINHA PARA INCLUIR SUA LOGO NO TOPO
