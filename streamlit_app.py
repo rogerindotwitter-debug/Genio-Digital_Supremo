@@ -18,12 +18,13 @@ client = genai.Client(api_key=API_KEY)
 
 
 # INSTRUÇÃO DE SISTEMA GLOBAL (O CÉREBRO DO CLIQLINKS)
+# *** NOVO PROMPT: MAIS FOCO NA PRECISÃO DE PREÇOS ***
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. Pesquisar o preço de mercado atual para o estado informado, sugerindo um preço JUSTO e competitivo. "
+    "1. **PESQUISAR O PREÇO DE MERCADO ATUAL**: Busque o preço em grandes varejistas online do Brasil (como Amazon, Mercado Livre, Netshoes, etc.) e sugira o preço MAIS COMPETITIVO e JUSTO para o estado do produto. Se o preço for incomumente alto, verifique fontes alternativas para garantir que seja realista e atual."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -39,9 +40,10 @@ if "idea_count" not in st.session_state:
     st.session_state.idea_count = 0
 
 # ===============================================
-# FUNÇÃO DE GERAÇÃO (ALTA ESTABILIDADE)
+# FUNÇÃO DE GERAÇÃO
 # ===============================================
 def generate_cliqlinks_response(prompt):
+    """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
     
     for attempt in range(3):
         try:
@@ -79,14 +81,13 @@ def reset_session():
      st.rerun()
 
 # ====================================================================
-# *** LOGO E URL DA LOGO (FORMATO RAW CORRETO CONFIRMADO) ***
+# *** LOGO E URL DA LOGO (CONFIRMADO E FUNCIONANDO) ***
 # ====================================================================
-# ESTA É A URL RAW GARANTIDA PARA O SEU REPOSITÓRIO E NOME DO ARQUIVO.
 LOGO_URL = "https://raw.githubusercontent.com/rogerindotwitter-debug/Genio-Digital_Supremo/main/logo_cliqlinks_ai.png"
 # ====================================================================
 
 
-# BARRA LATERAL (LOGO NO CANTO ESQUERDO E PEQUENA)
+# BARRA LATERAL 
 with st.sidebar:
     st.image(LOGO_URL, width=80) 
     st.title("🔗 CliqLinks AI")
