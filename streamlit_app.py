@@ -23,7 +23,7 @@ client = genai.Client(api_key=API_KEY)
 DEV_ACCESS_KEY = "pablo_cliqlinks_dev" 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.17 - AJUSTE DE ATUALIDADE CORRIGIDO)
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.18 - AJUSTE DE HUMILDADE FINAL)
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
@@ -32,14 +32,7 @@ SYSTEM_PROMPT_CLIQLINKS = (
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
     "**ATENÇÃO À ATUALIDADE, NOME E FOCO:** Sua análise deve refletir a realidade do mercado **atual** do Brasil. "
     "**USE SEMPRE O NOME EXATO DO PRODUTO FORNECIDO PELO USUÁRIO na descrição de venda e nos títulos.** "
-    
-    # 🌟 CORREÇÃO DE ATUALIDADE AQUI 🌟
-    # 1. Informação explícita sobre lançamentos (Ex: iPhone 17) para evitar negação.
-    "**DADOS IMPORTANTES:** Você está operando em 2025. O **iPhone 17** e seus modelos Pro foram lançados no Brasil "
-    "e, portanto, são produtos existentes no mercado atual. Utilize essa informação ao precificar."
-    "Se a busca de preço for incompleta ou o produto for de altíssima novidade (lançamento recente) E NÃO TIVER DADOS, a resposta deve ser sincera: "
-    "'O CliqLinks AI não possui dados históricos de preço ou referências de grandes varejistas para determinar um preço de venda atual e realista, com foco em liquidez máxima. Sugerimos que você pesquise o preço de lançamento oficial. No entanto, o produto [NOME DO PRODUTO] é existente e está no mercado.' "
-    
+    "Se a busca de preço for incompleta ou o produto for de altíssima novidade (lançamento recente), a resposta deve ser sincera: 'O CliqLinks AI não possui dados históricos de preço ou referências de grandes varejistas para determinar um preço de venda atual e realista, com foco em liquidez máxima. Sugerimos que você pesquise o preço de lançamento oficial.' "
     "1. **PREÇO MÍNIMO HISTÓRICO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o preço mais baixo da FAIXA HISTÓRICA DO PRODUTO, focado na liquidez máxima (venda rápida). **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 90,00, pois preços acima de R$ 130 desestimulam a compra.** "
     "Para outros produtos, aplique essa mesma lógica de PREÇO MÍNIMO PARA VENDA RÁPIDA, ignorando o preço cheio."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
@@ -68,7 +61,6 @@ def generate_cliqlinks_response(prompt):
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
                     contents=[prompt],
-                    # A função de geração usa o prompt de sistema CORRIGIDO.
                     config=dict(system_instruction=SYSTEM_PROMPT_CLIQLINKS)
                 )
             
@@ -83,7 +75,6 @@ def generate_cliqlinks_response(prompt):
             time.sleep(1)
             return
 
-# (O restante do código Streamlit permanece o mesmo)
 # ===============================================
 # INTERFACE DO STREAMLIT (CLIQLINKS)
 # ===============================================
@@ -117,7 +108,7 @@ with st.sidebar:
     st.subheader("Seu Assistente de Vendas Pessoal")
     st.markdown("---")
     
-    # 💡 NOVO: MENSAGEM DE ACESSO DEV
+    # 💡 MENSAGEM DE ACESSO DEV
     if is_developer_access:
         st.success("💻 Modo Desenvolvedor ATIVO!")
         st.markdown("**Ideias Geradas:** ILIMITADO")
@@ -125,8 +116,74 @@ with st.sidebar:
         st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **7**")
         st.progress(st.session_state.idea_count / 7)
     
-    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00
-    # O restante do código de interface do Streamlit (principal e barra lateral) deve ser colado aqui,
-    # começando da linha "IMPLEMENTAÇÃO DE PAGAMENTO" até o final do seu código Streamlit.
-    # Como você só me forneceu o início da barra lateral, vou deixar o final em comentário.
-    # ...
+    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
+    if st.session_state.idea_count >= 7 and not is_developer_access:
+        st.error("🚨 Limite de 7 Ideias Gratuitas Atingido!")
+        st.warning("Para liberar o acesso ILIMITADO, você terá que pagar R$ 5,00/mês.")
+        st.markdown('***Clique aqui para Desbloquear:***')
+        
+        # 🚨🚨🚨 LINK DE PAGAMENTO STRIPE - LINK DE TESTE! 🚨🚨🚨
+        LINK_PAGAMENTO = "https://buy.stripe.com/test_28E14oF6mFS3" 
+        
+        st.markdown(f"[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado]({LINK_PAGAMENTO})", unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("• **Criador:** Pablo Nascimento")
+    st.markdown("• **Motor:** Gemini 2.5 Flash")
+    
+    if st.button("Limpar Histórico de Ideias", type="secondary"):
+         reset_session()
+
+
+# --- CORPO PRINCIPAL ---
+st.header("🔗 CliqLinks AI: Aumente Suas Vendas com IA! 💰")
+st.markdown("Descreva seu produto e receba instantaneamente o preço justo de mercado, a melhor descrição de venda e títulos irresistíveis.")
+
+# --- FORMULÁRIO DE ENTRADA ---
+st.subheader("🚀 Gerador de Ideias de Venda")
+
+# 💡 VARIÁVEL DE DISPONIBILIDADE
+is_available = st.session_state.idea_count < 7 or is_developer_access
+
+with st.form("cliqlinks_form", clear_on_submit=True):
+    product_description = st.text_area(
+        "📝 Descreva o Produto em Detalhes",
+        placeholder="Ex: Tênis Air Jordan 1 Vermelho e Preto, tamanho 42, na caixa original. Seminovo, usado 3 vezes."
+    )
+    product_condition = st.selectbox(
+        "✨ Selecione o Estado do Produto",
+        options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
+    )
+    
+    submitted = st.form_submit_button("💰 Gerar Análise de Venda!", 
+                                      disabled=not is_available)
+
+    if submitted:
+        # 💡 CHECAGEM CONDICIONAL PARA O DESENVOLVEDOR
+        if is_available:
+            if not product_description:
+                 st.error("Por favor, preencha a descrição do produto.")
+                 st.stop()
+
+            full_prompt = (
+                f"Analise este produto para venda: {product_description}. "
+                f"O estado dele é: {product_condition}. "
+                f"Gere a análise completa no formato requisitado (Preço, Descrição, Títulos)."
+            )
+            
+            generate_cliqlinks_response(full_prompt) 
+            
+            # 💡 SÓ INCREMENTA O CONTADOR SE NÃO ESTIVER EM MODO DESENVOLVEDOR
+            if not is_developer_access:
+                st.session_state.idea_count += 1
+                
+            st.rerun()
+        
+# --- EXIBIÇÃO DAS IDEIAS GERADAS ---
+st.subheader("Histórico de Análises")
+
+for idea in reversed(st.session_state.generated_ideas):
+    # AQUI ESTAVA O ERRO DE SINTAXE (falta de aspas no fechamento da f-string)
+    st.markdown(f"**Análise Gerada às {idea['timestamp']}**") 
+    with st.expander("Ver Detalhes"): 
+        st.markdown(idea["text"])
