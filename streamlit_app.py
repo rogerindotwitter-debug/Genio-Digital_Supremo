@@ -18,14 +18,15 @@ client = genai.Client(api_key=API_KEY)
 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.10 - PRECIFICAÇÃO CONDICIONAL)
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.11 - PREÇO MÍNIMO ABSOLUTO)
+# *** Esta instrução força o preço para o valor mínimo competitivo. ***
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. **PREÇO JUSTO E COMPETITIVO**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. **Se o estado for 'Novo (lacrado)', a sugestão de preço DEVE ser PRATICAMENTE IDÊNTICA ao preço de varejo mais competitivo, visando a liquidez máxima.** Para produtos usados ou seminovos, sugira um preço que não extrapole R$ 50 do valor justo de mercado para garantir uma margem justa, mas sempre focado na atratividade de compra."
+    "1. **PREÇO MÍNIMO HISTÓRICO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o preço mais baixo da FAIXA HISTÓRICA DO PRODUTO, focado na liquidez máxima (venda rápida). **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 90,00, pois preços acima de R$ 130 desestimulam a compra.** Para outros produtos, aplique essa mesma lógica de PREÇO MÍNIMO PARA VENDA RÁPIDA, ignorando o preço cheio."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -155,7 +156,6 @@ with st.form("cliqlinks_form", clear_on_submit=True):
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
-# A CORREÇÃO ESTÁ AQUI: GARANTINDO QUE A ASPA DE F-STRING ESTEJA CORRETA
 for idea in reversed(st.session_state.generated_ideas):
     with st.expander(f"Análise Gerada às {idea['timestamp']}"): 
         st.markdown(idea["text"])
