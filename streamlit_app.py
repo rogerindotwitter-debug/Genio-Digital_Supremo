@@ -11,6 +11,7 @@ from google.genai import errors
 API_KEY = os.environ.get("GEMINI_API_KEY") 
 
 if not API_KEY:
+    # Este erro só aparece se o Secret não estiver configurado corretamente no Streamlit Cloud
     st.error("Erro: A chave GEMINI_API_KEY não foi configurada nos Secrets do Streamlit Cloud.")
     st.stop()
     
@@ -40,23 +41,23 @@ if "idea_count" not in st.session_state:
     st.session_state.idea_count = 0
 
 # ===============================================
-# FUNÇÃO DE GERAÇÃO (MAIS ESTÁVEL)
+# FUNÇÃO DE GERAÇÃO (MAIS ESTÁVEL - SEM CHAT CLIENT)
 # ===============================================
 def generate_cliqlinks_response(prompt):
-    """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
+    """Função que envia o prompt diretamente para o modelo (Alta estabilidade)."""
     
-    # O uso do 'try/except' é a correção agressiva do bug de estabilidade
+    # O uso do 'try/except' é o que impede o aplicativo de travar na segunda tentativa.
     for attempt in range(3):
         try:
             with st.spinner("CliqLinks AI está analisando o mercado e criando sua estratégia..."):
-                # Chama a API de forma direta e sem manter um histórico de chat
+                # Geração de conteúdo direta (mais estável que o chat)
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
                     contents=[prompt],
                     config=dict(system_instruction=SYSTEM_PROMPT_CLIQLINKS)
                 )
             
-            # Adiciona a nova ideia ao histórico de ideias
+            # Adiciona a nova ideia ao histórico
             st.session_state.generated_ideas.append({
                 "role": "CliqLinks AI", 
                 "text": response.text,
@@ -85,12 +86,11 @@ def reset_session():
      st.rerun()
 
 # ====================================================================
-# *** LOGO DO CLIQLINKS AI ***
+# *** CÓDIGO DA LOGO DO CLIQLINKS AI ***
 # ====================================================================
-# ATENÇÃO: SUBSTITUA A URL ABAIXO pela URL da sua logo no GitHub.
-# Certifique-se de que a logo foi otimizada para menos de 1MB!
+# ATENÇÃO: SUBSTITUA ESTA URL PELA URL REAL DA SUA LOGO NO GITHUB!
+# A logo deve estar nomeada como 'logo_cliqlinks_ai.png' e ser < 1MB.
 LOGO_URL = "https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_cliqlinks_ai.png?raw=true"
-# Recomenda-se width=250.
 st.image(LOGO_URL, width=250)
 # ====================================================================
 
@@ -107,8 +107,9 @@ with st.sidebar:
     if st.session_state.idea_count >= 5:
         st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
         st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
-        # VOCÊ IRÁ SUBSTITUIR ESTE BOTÃO PELO SEU LINK DE PAGAMENTO DO STRIPE!
-        st.markdown("[[Pagar e Desbloquear Agora!](LINK_DO_SEU_PAGAMENTO_STRIPE_AQUI)]")
+        # VOCÊ DEVE SUBSTITUIR ESTE TEXTO PELO SEU LINK DE PAGAMENTO STRIPE REAL!
+        st.markdown('***Clique aqui para Desbloquear:***')
+        st.markdown("[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado](LINK_DO_SEU_PAGAMENTO_STRIPE_AQUI)", unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("• **Criador:** Pablo Nascimento")
@@ -135,7 +136,7 @@ with st.form("cliqlinks_form", clear_on_submit=True):
         options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
     )
     
-    # O botão só fica ativo se o contador for menor que 5 (ou se for o futuro pago)
+    # O botão só fica ativo se o contador for menor que 5
     submitted = st.form_submit_button("💰 Gerar Análise de Venda!", 
                                       disabled=st.session_state.idea_count >= 5)
 
@@ -156,7 +157,7 @@ with st.form("cliqlinks_form", clear_on_submit=True):
             generate_cliqlinks_response(full_prompt) 
             st.session_state.idea_count += 1
             st.rerun()
-        # O else já é tratado pelo disabled no botão e pelas mensagens acima.
+        # O else já é tratado pelo 'disabled' no botão e pelas mensagens acima.
             
 
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
