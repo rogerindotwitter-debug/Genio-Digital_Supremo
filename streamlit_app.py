@@ -23,7 +23,7 @@ client = genai.Client(api_key=API_KEY)
 DEV_ACCESS_KEY = "pablo_cliqlinks_dev" 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.19 - AJUSTE DE HUMILDADE E FUTURO)
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.23 - PREÇO JUSTO E MARGEM)
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
@@ -33,8 +33,8 @@ SYSTEM_PROMPT_CLIQLINKS = (
     "**ATENÇÃO À ATUALIDADE, NOME E FOCO:** Sua análise deve refletir a realidade do mercado **atual** do Brasil. "
     "**USE SEMPRE O NOME EXATO DO PRODUTO FORNECIDO PELO USUÁRIO na descrição de venda e nos títulos.** "
     "Se a busca de preço for incompleta ou o produto for de altíssima novidade (lançamento recente), a resposta deve ser sincera: 'Pedimos desculpas! O CliqLinks AI ainda não conseguiu determinar o preço justo para este produto de lançamento extremamente recente (e de alta tecnologia). Nossa base de dados para precificação de liquidez máxima para produtos que acabaram de sair está sendo trabalhada e será liberada em uma versão futura. Por favor, utilize a descrição otimizada para a venda, mas pesquise o preço oficial por enquanto.' "
-    "1. **PREÇO MÍNIMO HISTÓRICO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o preço mais baixo da FAIXA HISTÓRICA DO PRODUTO, focado na liquidez máxima (venda rápida). **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 90,00, pois preços acima de R$ 130 desestimulam a compra.** "
-    "Para outros produtos, aplique essa mesma lógica de PREÇO MÍNIMO PARA VENDA RÁPIDA, ignorando o preço cheio."
+    "1. **PREÇO JUSTO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o PREÇO DE MERCADO COMPETITIVO (entre o preço mínimo e o preço médio) focado em **liquidez e lucro justo**, e não apenas liquidez máxima. **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 110,00, pois R$ 90,00 é muito baixo e R$ 130,00 desestimula a compra.** "
+    "Para outros produtos, aplique essa mesma lógica de PREÇO DE MERCADO COMPETITIVO. **Para camisetas de time em lançamento/novo (R$ 399,00), o preço sugerido deve ser R$ 350,00, e não R$ 199,00, para garantir lucro e ser competitivo.**"
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -49,6 +49,24 @@ if "generated_ideas" not in st.session_state:
     st.session_state.generated_ideas = []
 if "idea_count" not in st.session_state:
     st.session_state.idea_count = 0
+# === NOVO: Variáveis para Limite Diário ===
+if "last_reset_date" not in st.session_state:
+    st.session_state.last_reset_date = datetime.date.today()
+# =========================================
+
+# === NOVO: Função para o Reset Diário ===
+def check_daily_reset():
+    """Reseta o contador de ideias se um novo dia (24h) passou desde o último uso."""
+    today = datetime.date.today()
+    # Se a última data de reset for anterior à data de hoje, reseta o contador
+    if st.session_state.last_reset_date < today:
+        st.session_state.idea_count = 0
+        st.session_state.last_reset_date = today
+
+# Chama a função no início do script para verificar se o limite deve ser resetado
+check_daily_reset()
+# =========================================
+
 
 # ===============================================
 # FUNÇÃO DE GERAÇÃO
@@ -88,6 +106,7 @@ st.set_page_config(
 def reset_session():
      st.session_state.generated_ideas = []
      st.session_state.idea_count = 0
+     st.session_state.last_reset_date = datetime.date.today() # Reseta a data para hoje
      st.rerun()
 
 # ====================================================================
@@ -177,13 +196,11 @@ with st.form("cliqlinks_form", clear_on_submit=True):
             if not is_developer_access:
                 st.session_state.idea_count += 1
                 
-            # st.rerun() # Não precisamos de um rerun aqui, a exibição está abaixo
-
         
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
-# Novo Bloco de Exibição
+# Bloco de Exibição
 for idea in reversed(st.session_state.generated_ideas):
     # Usamos st.container para garantir que cada análise ocupe seu próprio espaço.
     with st.container(border=True): 
