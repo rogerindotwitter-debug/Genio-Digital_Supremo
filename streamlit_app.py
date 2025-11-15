@@ -23,14 +23,16 @@ client = genai.Client(api_key=API_KEY)
 DEV_ACCESS_KEY = "pablo_cliqlinks_dev" 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.13 - PREÇO MÍNIMO ABSOLUTO)
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.14 - CORREÇÃO DE DATA)
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. **PREÇO MÍNIMO HISTÓRICO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o preço mais baixo da FAIXA HISTÓRICA DO PRODUTO, focado na liquidez máxima (venda rápida). **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 90,00, pois preços acima de R$ 130 desestimulam a compra.** Para outros produtos, aplique essa mesma lógica de PREÇO MÍNIMO PARA VENDA RÁPIDA, ignorando o preço cheio."
+    "1. **PREÇO MÍNIMO HISTÓRICO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o preço mais baixo da FAIXA HISTÓRICA DO PRODUTO, focado na liquidez máxima (venda rápida). **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 90,00, pois preços acima de R$ 130 desestimulam a compra.** "
+    "**IMPORTANTE**: Para produtos de tecnologia ou lançamentos recentes (ex: iPhone 16), o preço sugerido DEVE ser baseado em pesquisa ATUAL de mercado (busca externa) e nunca deve rejeitar o produto por ser 'não lançado'."
+    "Para outros produtos, aplique essa mesma lógica de PREÇO MÍNIMO PARA VENDA RÁPIDA, ignorando o preço cheio."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -119,6 +121,8 @@ with st.sidebar:
         st.markdown('***Clique aqui para Desbloquear:***')
         
         # 🚨🚨🚨 LINK DE PAGAMENTO STRIPE - LINK DE TESTE! 🚨🚨🚨
+        # Lembre-se: Você DEVE clicar em "Ativar pagamentos" no Stripe e 
+        # gerar um novo link de produção e substituí-lo aqui!
         LINK_PAGAMENTO = "https://buy.stripe.com/test_28E14oF6mFS3" 
         
         st.markdown(f"[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado]({LINK_PAGAMENTO})", unsafe_allow_html=True)
