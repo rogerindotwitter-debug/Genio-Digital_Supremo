@@ -18,7 +18,12 @@ client = genai.Client(api_key=API_KEY)
 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.12 - PREÇO MÍNIMO ABSOLUTO)
+# CHAVE SECRETA DO DESENVOLVEDOR (MUDE SE QUISER) 🤫
+# ===============================================
+DEV_ACCESS_KEY = "pablo_cliqlinks_dev" 
+
+# ===============================================
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.13 - PREÇO MÍNIMO ABSOLUTO)
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
@@ -87,6 +92,10 @@ def reset_session():
 LOGO_URL = "https://raw.githubusercontent.com/rogerindotwitter-debug/Genio-Digital_Supremo/main/logo_cliqlinks_ai.png"
 # ====================================================================
 
+# 💡 NOVO: VERIFICA ACESSO DE DESENVOLVEDOR
+query_params = st.query_params
+is_developer_access = query_params.get("key") == DEV_ACCESS_KEY
+
 
 # BARRA LATERAL 
 with st.sidebar:
@@ -94,22 +103,22 @@ with st.sidebar:
     st.title("🔗 CliqLinks AI")
     st.subheader("Seu Assistente de Vendas Pessoal")
     st.markdown("---")
-    # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
-    st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **7**")
-    st.progress(st.session_state.idea_count / 7)
+    
+    # 💡 NOVO: MENSAGEM DE ACESSO DEV
+    if is_developer_access:
+        st.success("💻 Modo Desenvolvedor ATIVO!")
+        st.markdown("**Ideias Geradas:** ILIMITADO")
+    else:
+        st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **7**")
+        st.progress(st.session_state.idea_count / 7)
     
     # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
-    # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
-    if st.session_state.idea_count >= 7:
-        # AQUI ESTÁ A MUDANÇA DE TEXTO DE 5 PARA 7
+    if st.session_state.idea_count >= 7 and not is_developer_access:
         st.error("🚨 Limite de 7 Ideias Gratuitas Atingido!")
-        # AQUI ESTÁ A MUDANÇA DE TEXTO DE 20 LINKS PARA ILIMITADO
         st.warning("Para liberar o acesso ILIMITADO, você terá que pagar R$ 5,00/mês.")
         st.markdown('***Clique aqui para Desbloquear:***')
         
         # 🚨🚨🚨 LINK DE PAGAMENTO STRIPE - LINK DE TESTE! 🚨🚨🚨
-        # Lembre-se: Você DEVE clicar em "Ativar pagamentos" no Stripe e 
-        # gerar um novo link de produção para cobrar de verdade!
         LINK_PAGAMENTO = "https://buy.stripe.com/test_28E14oF6mFS3" 
         
         st.markdown(f"[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado]({LINK_PAGAMENTO})", unsafe_allow_html=True)
@@ -129,6 +138,9 @@ st.markdown("Descreva seu produto e receba instantaneamente o preço justo de me
 # --- FORMULÁRIO DE ENTRADA ---
 st.subheader("🚀 Gerador de Ideias de Venda")
 
+# 💡 NOVO: VARIÁVEL DE DISPONIBILIDADE
+is_available = st.session_state.idea_count < 7 or is_developer_access
+
 with st.form("cliqlinks_form", clear_on_submit=True):
     product_description = st.text_area(
         "📝 Descreva o Produto em Detalhes",
@@ -139,13 +151,12 @@ with st.form("cliqlinks_form", clear_on_submit=True):
         options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
     )
     
-    # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
     submitted = st.form_submit_button("💰 Gerar Análise de Venda!", 
-                                      disabled=st.session_state.idea_count >= 7)
+                                      disabled=not is_available)
 
     if submitted:
-        # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
-        if st.session_state.idea_count < 7:
+        # 💡 NOVO: CHECAGEM CONDICIONAL PARA O DESENVOLVEDOR
+        if is_available:
             if not product_description:
                  st.error("Por favor, preencha a descrição do produto.")
                  st.stop()
@@ -157,9 +168,13 @@ with st.form("cliqlinks_form", clear_on_submit=True):
             )
             
             generate_cliqlinks_response(full_prompt) 
-            st.session_state.idea_count += 1
-            st.rerun()
             
+            # 💡 NOVO: SÓ INCREMENTA O CONTADOR SE NÃO ESTIVER EM MODO DESENVOLVEDOR
+            if not is_developer_access:
+                st.session_state.idea_count += 1
+                
+            st.rerun()
+        
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
