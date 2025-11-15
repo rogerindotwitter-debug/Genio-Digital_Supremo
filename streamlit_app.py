@@ -11,11 +11,9 @@ from google.genai import errors
 API_KEY = os.environ.get("GEMINI_API_KEY") 
 
 if not API_KEY:
-    # Este erro só aparece se o Secret não estiver configurado corretamente no Streamlit Cloud
     st.error("Erro: A chave GEMINI_API_KEY não foi configurada nos Secrets do Streamlit Cloud.")
     st.stop()
     
-# Inicializa o cliente da API
 client = genai.Client(api_key=API_KEY)
 
 
@@ -46,18 +44,15 @@ if "idea_count" not in st.session_state:
 def generate_cliqlinks_response(prompt):
     """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
     
-    # Este loop garante que o app não trave no primeiro erro (o bug que corrigimos)
     for attempt in range(3):
         try:
             with st.spinner("CliqLinks AI está analisando o mercado e criando sua estratégia..."):
-                # Geração de conteúdo direta (mais estável que o chat)
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
                     contents=[prompt],
                     config=dict(system_instruction=SYSTEM_PROMPT_CLIQLINKS)
                 )
             
-            # Adiciona a nova ideia ao histórico
             st.session_state.generated_ideas.append({
                 "role": "CliqLinks AI", 
                 "text": response.text,
@@ -79,24 +74,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# FUNÇÃO PARA RESETAR A SESSÃO
 def reset_session():
-     st.session_session.generated_ideas = []
+     st.session_state.generated_ideas = []
      st.session_state.idea_count = 0
      st.rerun()
 
 # ====================================================================
-# *** LOGO E URL DA LOGO ***
+# *** LOGO E URL DA LOGO (FORMATO RAW CORRETO CONFIRMADO) ***
 # ====================================================================
-# ATENÇÃO: SUBSTITUA ESTA URL PELA SUA URL RAW CORRETA DO GITHUB!
-LOGO_URL = "https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_cliqlinks_ai.png?raw=true"
+# URL RAW (Bruta) CONFIRMADA: O Streamlit PODE LER ESSE FORMATO.
+LOGO_URL = "https://raw.githubusercontent.com/rogerindotwitter-debug/Genio-Digital_Supremo/main/logo_cliqlinks_ai.png"
 # ====================================================================
 
 
-# BARRA LATERAL (AGORA COM A LOGO NO CANTO E PEQUENA)
+# BARRA LATERAL (LOGO NO CANTO ESQUERDO E PEQUENA)
 with st.sidebar:
-    # A logo agora é a PRIMEIRA COISA na barra lateral,
-    # Reduzida para 80px (largura ideal para canto)
     st.image(LOGO_URL, width=80) 
     st.title("🔗 CliqLinks AI")
     st.subheader("Seu Assistente de Vendas Pessoal")
@@ -108,8 +100,8 @@ with st.sidebar:
     if st.session_state.idea_count >= 5:
         st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
         st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
-        # VOCÊ DEVE SUBSTITUIR ESTE TEXTO PELO SEU LINK DE PAGAMENTO STRIPE REAL!
         st.markdown('***Clique aqui para Desbloquear:***')
+        # ESTE É O LOCAL PARA COLAR O SEU LINK DE PAGAMENTO DO STRIPE
         st.markdown("[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado](LINK_DO_SEU_PAGAMENTO_STRIPE_AQUI)", unsafe_allow_html=True)
     
     st.markdown("---")
@@ -121,7 +113,6 @@ with st.sidebar:
 
 
 # --- CORPO PRINCIPAL ---
-# A logo foi removida daqui, deixando o corpo limpo para o conteúdo.
 st.header("🔗 CliqLinks AI: Aumente Suas Vendas com IA! 💰")
 st.markdown("Descreva seu produto e receba instantaneamente o preço justo de mercado, a melhor descrição de venda e títulos irresistíveis.")
 
@@ -138,7 +129,6 @@ with st.form("cliqlinks_form", clear_on_submit=True):
         options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
     )
     
-    # O botão só fica ativo se o contador for menor que 5
     submitted = st.form_submit_button("💰 Gerar Análise de Venda!", 
                                       disabled=st.session_state.idea_count >= 5)
 
@@ -148,14 +138,12 @@ with st.form("cliqlinks_form", clear_on_submit=True):
                  st.error("Por favor, preencha a descrição do produto.")
                  st.stop()
 
-            # Constrói o prompt específico para a IA
             full_prompt = (
                 f"Analise este produto para venda: {product_description}. "
                 f"O estado dele é: {product_condition}. "
                 f"Gere a análise completa no formato requisitado (Preço, Descrição, Títulos)."
             )
             
-            # Chama a IA, incrementa o contador e força a atualização
             generate_cliqlinks_response(full_prompt) 
             st.session_state.idea_count += 1
             st.rerun()
@@ -163,7 +151,6 @@ with st.form("cliqlinks_form", clear_on_submit=True):
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
-# Exibe as ideias da mais recente para a mais antiga
 for idea in reversed(st.session_state.generated_ideas):
     with st.expander(f"Análise Gerada às {idea['timestamp']}"):
         st.markdown(idea["text"])
