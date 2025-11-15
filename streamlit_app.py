@@ -177,17 +177,24 @@ with st.form("cliqlinks_form", clear_on_submit=True):
             if not is_developer_access:
                 st.session_state.idea_count += 1
                 
-            st.rerun()
+            # st.rerun() # Não precisamos de um rerun aqui, a exibição está abaixo
+
         
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
+# Novo Bloco de Exibição
 for idea in reversed(st.session_state.generated_ideas):
-    st.markdown(f"**Análise Gerada às {idea['timestamp']}**") 
-    with st.expander("Ver Detalhes"): 
-        st.markdown(idea["text"])
-        
+    # Usamos st.container para garantir que cada análise ocupe seu próprio espaço.
+    with st.container(border=True): 
+        st.markdown(f"**Análise Gerada às {idea['timestamp']}**") 
+        # A expansão é a melhor forma de mostrar o resultado completo sem poluir a tela.
+        with st.expander("Ver Detalhes da Análise"): 
+            st.markdown(idea["text"])
+            
 # --- RODAPÉ BETA ---
 st.markdown("---")
-st.markdown("_versão (beta) pode conter pequenos erros._", unsafe_allow_html=True) 
-
+st.markdown(
+    "_versão (beta 2025) – pode conter pequenos erros. Fique tranquilo: esses erros são limitados a produtos de lançamento extremamente recente (como o iPhone 17), pois ainda estamos construindo o histórico de preços._",
+    unsafe_allow_html=True
+)
