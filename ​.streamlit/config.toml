@@ -1,7 +1,7 @@
 [theme]
-# Tema Preto Total e Cores Neon que combinam com a logo do Gênio Supremo
-primaryColor="#00CED1"  # Dark Turquoise (o ciano vibrante da logo)
-backgroundColor="#000000" # Preto Puro (máximo contraste, alta tecnologia)
-secondaryBackgroundColor="#1E1E1E" # Cinza Escuro para caixas de texto e sidebar
-textColor="#FFFFFF" # Texto branco puro
+# Tema Púrpura e Laranja (Moderno e Divertido)
+primaryColor="#9370DB"  # Medium Purple (Cor principal, puxando o roxo da logo)
+backgroundColor="#121212" # Cinza Escuro (Fundo moderno, com mais profundidade que o preto puro)
+secondaryBackgroundColor="#FF8C00" # Dark Orange (Cor do Fênix, para destaque em inputs/sidebar)
+textColor="#FFFFFF" # Texto branco
 font="sans serif"
