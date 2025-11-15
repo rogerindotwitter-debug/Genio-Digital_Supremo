@@ -40,20 +40,21 @@ if "idea_count" not in st.session_state:
     st.session_state.idea_count = 0
 
 # ===============================================
-# FUNÇÃO DE GERAÇÃO (AGORA SEM O CHAT_CLIENT)
+# FUNÇÃO DE GERAÇÃO (MAIS ESTÁVEL)
 # ===============================================
 def generate_cliqlinks_response(prompt):
-    """Função que envia o prompt diretamente para o modelo (Mais estável)."""
+    """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
     
     # O uso do 'try/except' é a correção agressiva do bug de estabilidade
     for attempt in range(3):
         try:
-            # Chama a API de forma direta e sem manter um histórico de chat
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=[prompt],
-                config=dict(system_instruction=SYSTEM_PROMPT_CLIQLINKS)
-            )
+            with st.spinner("CliqLinks AI está analisando o mercado e criando sua estratégia..."):
+                # Chama a API de forma direta e sem manter um histórico de chat
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=[prompt],
+                    config=dict(system_instruction=SYSTEM_PROMPT_CLIQLINKS)
+                )
             
             # Adiciona a nova ideia ao histórico de ideias
             st.session_state.generated_ideas.append({
@@ -83,6 +84,17 @@ def reset_session():
      st.session_state.idea_count = 0
      st.rerun()
 
+# ====================================================================
+# *** LOGO DO CLIQLINKS AI ***
+# ====================================================================
+# ATENÇÃO: SUBSTITUA A URL ABAIXO pela URL da sua logo no GitHub.
+# Certifique-se de que a logo foi otimizada para menos de 1MB!
+LOGO_URL = "https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_cliqlinks_ai.png?raw=true"
+# Recomenda-se width=250.
+st.image(LOGO_URL, width=250)
+# ====================================================================
+
+
 # BARRA LATERAL (VISUAL MODERNO E CONFORME O TEMA)
 with st.sidebar:
     st.title("🔗 CliqLinks AI")
@@ -91,8 +103,12 @@ with st.sidebar:
     st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
     st.progress(st.session_state.idea_count / 5)
     
+    # FUTURA IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
     if st.session_state.idea_count >= 5:
-        st.button("🔴 Desbloquear Acesso (Futuro Pago)", type="primary", disabled=True)
+        st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
+        st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
+        # VOCÊ IRÁ SUBSTITUIR ESTE BOTÃO PELO SEU LINK DE PAGAMENTO DO STRIPE!
+        st.markdown("[[Pagar e Desbloquear Agora!](LINK_DO_SEU_PAGAMENTO_STRIPE_AQUI)]")
     
     st.markdown("---")
     st.markdown("• **Criador:** Pablo Nascimento")
@@ -106,7 +122,7 @@ with st.sidebar:
 st.header("🔗 CliqLinks AI: Aumente Suas Vendas com IA! 💰")
 st.markdown("Descreva seu produto e receba instantaneamente o preço justo de mercado, a melhor descrição de venda e títulos irresistíveis.")
 
-# --- FORMULÁRIO DE ENTRADA (MUITO MAIS ESTÁVEL) ---
+# --- FORMULÁRIO DE ENTRADA ---
 st.subheader("🚀 Gerador de Ideias de Venda")
 
 with st.form("cliqlinks_form", clear_on_submit=True):
@@ -119,7 +135,9 @@ with st.form("cliqlinks_form", clear_on_submit=True):
         options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
     )
     
-    submitted = st.form_submit_button("💰 Gerar Análise de Venda!")
+    # O botão só fica ativo se o contador for menor que 5 (ou se for o futuro pago)
+    submitted = st.form_submit_button("💰 Gerar Análise de Venda!", 
+                                      disabled=st.session_state.idea_count >= 5)
 
     if submitted:
         if st.session_state.idea_count < 5:
@@ -138,10 +156,7 @@ with st.form("cliqlinks_form", clear_on_submit=True):
             generate_cliqlinks_response(full_prompt) 
             st.session_state.idea_count += 1
             st.rerun()
-        else:
-            # Bloqueia e mostra mensagem do futuro pago
-            st.error(f"❌ Limite de 5 Ideias Gratuitas Atingido! (Contador: {st.session_state.idea_count}/5)")
-            st.warning("Para continuar testando, clique em 'Limpar Histórico de Ideias' na barra lateral.")
+        # O else já é tratado pelo disabled no botão e pelas mensagens acima.
             
 
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
