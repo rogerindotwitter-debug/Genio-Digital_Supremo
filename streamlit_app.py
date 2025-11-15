@@ -34,7 +34,8 @@ SYSTEM_PROMPT_CHAT = (
     f"Quando perguntado sobre meu criador, responda com orgulho sobre Pablo Nascimento."
 )
 
-# Inicialização do estado da sessão do Streamlit
+# CORREÇÃO DO ERRO 'CLIENT CLOSED': 
+# Garante que o chat_client seja inicializado corretamente.
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "chat_client" not in st.session_state:
@@ -53,10 +54,21 @@ def generate_response(prompt):
     
     for attempt in range(3):
         try:
+            # Tenta enviar a mensagem
             response = st.session_state.chat_client.send_message(prompt)
             st.session_state.chat_history.append({"role": "ai", "text": response.text})
             return
         except (errors.APIError, Exception) as e:
+            # Se o cliente fechar, reinicializamos a sessão para permitir o uso contínuo
+            if "client has been closed" in str(e):
+                # Limpa a sessão e reinicia
+                st.session_state.pop("chat_client", None)
+                st.session_state.pop("chat_history", None)
+                st.error("Ocorreu um erro de conexão/sessão. O chat foi reiniciado. Tente novamente.")
+                st.rerun()
+                return
+            
+            # Tratamento de outros erros
             if attempt < 2:
                 time.sleep(2)
                 continue
@@ -75,12 +87,28 @@ st.set_page_config(
     layout="wide"
 )
 
+# INFORMAÇÕES EXTRAS NA BARRA LATERAL (MODERNO E INFORMATIVO)
+with st.sidebar:
+    st.title("Sobre o Gênio Supremo")
+    st.markdown("---")
+    st.subheader("🤖 Criador & Desenvolvedor:")
+    st.markdown("**Pablo Nascimento**")
+    st.markdown("Este projeto demonstra dedicação, inteligência e o domínio da tecnologia Gemini e Streamlit.")
+    st.markdown("---")
+    st.subheader("✨ Design & Tecnologia:")
+    st.markdown("• **Design Visual:** Tema personalizado em preto e ciano/laranja (cores da logo).")
+    st.markdown("• **Inteligência:** Google Gemini 2.5 Flash (Foco em performance e texto).")
+    st.markdown("• **Plataforma:** Streamlit Cloud.")
+    st.markdown("---")
+    st.subheader("⚙️ Status da API:")
+    st.markdown("Conexão com o Gemini: **ATIVA**")
+
+
 # LINHA PARA INCLUIR SUA LOGO NO TOPO
-# É ESSENCIAL que a imagem 'logo_genio_supremo.png' esteja no seu GitHub!
 st.image("https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_genio_supremo.png?raw=true", width=200)
 
 st.title("⭐ Gênio Digital Supremo: O Brabo Chegou! 🤖")
-st.markdown("Seu assistente de IA focado em performance e utilidade.")
+st.markdown("Seu assistente de IA focado em performance, utilidade e um design de ponta.")
 
 
 # --- CHATBOT LOOP ---
