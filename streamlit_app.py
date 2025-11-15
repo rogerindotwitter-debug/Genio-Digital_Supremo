@@ -18,15 +18,15 @@ client = genai.Client(api_key=API_KEY)
 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.7 - ESTABILIDADE E LIQUIDEZ)
-# *** Esta instrução garante que o preço seja justo e NÃO extrapole. ***
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.9 - REGRA DE PREÇO FINAL)
+# *** Esta instrução garante que o preço seja justo e não extrapole R$ 50 do valor de mercado. ***
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. **PREÇO DE VENDA RÁPIDA E COMPETITIVO**: Busque o preço em grandes varejistas online do Brasil. Sua sugestão DEVE ser o PREÇO COM FOCO NA LIQUIDEZ MÁXIMA, garantindo que o vendedor consiga vender o produto rapidamente. **IGNORE PREÇOS DE TABELA OU INFLACIONADOS.** Baseie sua análise no preço que oferece maior atratividade de compra imediata, especialmente para itens populares (como suplementos e eletrônicos), sugerindo o preço de liquidez (venda rápida) e não o preço cheio."
+    "1. **PREÇO JUSTO E NÃO EXTRAPOLANTE**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão final de preço **NÃO DEVE EXTRAPOLAR R$ 50 REAIS ACIMA DO PREÇO MAIS COMUM E REALISTA ENCONTRADO NO MERCADO** para garantir que o produto seja competitivo e percebido como um bom negócio. Use o preço mais próximo do valor justo para o estado do produto."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -98,7 +98,7 @@ with st.sidebar:
     st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
     st.progress(st.session_state.idea_count / 5)
     
-    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00) - AQUI ESTÁ A CHAVE!
+    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
     if st.session_state.idea_count >= 5:
         st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
         st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
