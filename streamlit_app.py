@@ -72,8 +72,12 @@ def generate_response(prompt):
 st.set_page_config(
     page_title="Gênio Digital Supremo", 
     page_icon="⭐",
-    layout="wide" # Deixa a aplicação mais moderna e larga
+    layout="wide"
 )
+
+# LINHA PARA INCLUIR SUA LOGO NO TOPO
+# É ESSENCIAL que a imagem 'logo_genio_supremo.png' esteja no seu GitHub!
+st.image("https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_genio_supremo.png?raw=true", width=200)
 
 st.title("⭐ Gênio Digital Supremo: O Brabo Chegou! 🤖")
 st.markdown("Seu assistente de IA focado em performance e utilidade.")
@@ -88,4 +92,4 @@ for message in st.session_state.chat_history:
 
 if prompt := st.chat_input("Diga algo ao Gênio Supremo..."):
     generate_response(prompt)
-    st.rerun() 
+    st.rerun()
