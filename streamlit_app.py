@@ -42,7 +42,6 @@ if "idea_count" not in st.session_state:
 # FUNÇÃO DE GERAÇÃO (ALTA ESTABILIDADE)
 # ===============================================
 def generate_cliqlinks_response(prompt):
-    """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
     
     for attempt in range(3):
         try:
@@ -82,7 +81,7 @@ def reset_session():
 # ====================================================================
 # *** LOGO E URL DA LOGO (FORMATO RAW CORRETO CONFIRMADO) ***
 # ====================================================================
-# URL RAW (Bruta) CONFIRMADA: O Streamlit PODE LER ESSE FORMATO.
+# ESTA É A URL RAW GARANTIDA PARA O SEU REPOSITÓRIO E NOME DO ARQUIVO.
 LOGO_URL = "https://raw.githubusercontent.com/rogerindotwitter-debug/Genio-Digital_Supremo/main/logo_cliqlinks_ai.png"
 # ====================================================================
 
