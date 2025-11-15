@@ -18,13 +18,13 @@ client = genai.Client(api_key=API_KEY)
 
 
 # INSTRUÇÃO DE SISTEMA GLOBAL (O CÉREBRO DO CLIQLINKS)
-# *** NOVO PROMPT: MAIS FOCO NA PRECISÃO DE PREÇOS ***
+# *** NOVO PROMPT V2.6: AGRESSIVIDADE NO PREÇO MAIS BAIXO E REALISTA ***
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. **PESQUISAR O PREÇO DE MERCADO ATUAL**: Busque o preço em grandes varejistas online do Brasil (como Amazon, Mercado Livre, Netshoes, etc.) e sugira o preço MAIS COMPETITIVO e JUSTO para o estado do produto. Se o preço for incomumente alto, verifique fontes alternativas para garantir que seja realista e atual."
+    "1. **PESQUISAR O PREÇO MAIS BAIXO E COMPETITIVO**: Busque o preço em grandes varejistas online do Brasil (Amazon, Mercado Livre, Netshoes, etc.). Sua sugestão DEVE ser o PREÇO MAIS BAIXO e REALISTA encontrado, focado na liquidez e venda rápida. **SE O PRODUTO FOR DE CONSUMO POPULAR (EX: SUPLEMENTOS), PRIORIZE A FAIXA DE PREÇO MAIS BARATA DO MERCADO** e evite preços inflacionados para que o vendedor consiga vender rapidamente. "
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -43,7 +43,6 @@ if "idea_count" not in st.session_state:
 # FUNÇÃO DE GERAÇÃO
 # ===============================================
 def generate_cliqlinks_response(prompt):
-    """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
     
     for attempt in range(3):
         try:
