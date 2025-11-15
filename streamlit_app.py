@@ -41,12 +41,12 @@ if "idea_count" not in st.session_state:
     st.session_state.idea_count = 0
 
 # ===============================================
-# FUNÇÃO DE GERAÇÃO (MAIS ESTÁVEL - SEM CHAT CLIENT)
+# FUNÇÃO DE GERAÇÃO (ALTA ESTABILIDADE)
 # ===============================================
 def generate_cliqlinks_response(prompt):
-    """Função que envia o prompt diretamente para o modelo (Alta estabilidade)."""
+    """Função que envia o prompt diretamente para o modelo (Sem chat, alta estabilidade)."""
     
-    # O uso do 'try/except' é o que impede o aplicativo de travar na segunda tentativa.
+    # Este loop garante que o app não trave no primeiro erro (o bug que corrigimos)
     for attempt in range(3):
         try:
             with st.spinner("CliqLinks AI está analisando o mercado e criando sua estratégia..."):
@@ -81,29 +81,30 @@ st.set_page_config(
 
 # FUNÇÃO PARA RESETAR A SESSÃO
 def reset_session():
-     st.session_state.generated_ideas = []
+     st.session_session.generated_ideas = []
      st.session_state.idea_count = 0
      st.rerun()
 
 # ====================================================================
-# *** CÓDIGO DA LOGO DO CLIQLINKS AI ***
+# *** LOGO E URL DA LOGO ***
 # ====================================================================
-# ATENÇÃO: SUBSTITUA ESTA URL PELA URL REAL DA SUA LOGO NO GITHUB!
-# A logo deve estar nomeada como 'logo_cliqlinks_ai.png' e ser < 1MB.
+# ATENÇÃO: SUBSTITUA ESTA URL PELA SUA URL RAW CORRETA DO GITHUB!
 LOGO_URL = "https://github.com/rogerindotwitter-debug/Genio-Digital_Supremo/blob/main/logo_cliqlinks_ai.png?raw=true"
-st.image(LOGO_URL, width=250)
 # ====================================================================
 
 
-# BARRA LATERAL (VISUAL MODERNO E CONFORME O TEMA)
+# BARRA LATERAL (AGORA COM A LOGO NO CANTO E PEQUENA)
 with st.sidebar:
+    # A logo agora é a PRIMEIRA COISA na barra lateral,
+    # Reduzida para 80px (largura ideal para canto)
+    st.image(LOGO_URL, width=80) 
     st.title("🔗 CliqLinks AI")
     st.subheader("Seu Assistente de Vendas Pessoal")
     st.markdown("---")
     st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
     st.progress(st.session_state.idea_count / 5)
     
-    # FUTURA IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
+    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
     if st.session_state.idea_count >= 5:
         st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
         st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
@@ -120,6 +121,7 @@ with st.sidebar:
 
 
 # --- CORPO PRINCIPAL ---
+# A logo foi removida daqui, deixando o corpo limpo para o conteúdo.
 st.header("🔗 CliqLinks AI: Aumente Suas Vendas com IA! 💰")
 st.markdown("Descreva seu produto e receba instantaneamente o preço justo de mercado, a melhor descrição de venda e títulos irresistíveis.")
 
@@ -157,9 +159,7 @@ with st.form("cliqlinks_form", clear_on_submit=True):
             generate_cliqlinks_response(full_prompt) 
             st.session_state.idea_count += 1
             st.rerun()
-        # O else já é tratado pelo 'disabled' no botão e pelas mensagens acima.
             
-
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
