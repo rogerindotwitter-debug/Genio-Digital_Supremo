@@ -23,7 +23,7 @@ client = genai.Client(api_key=API_KEY)
 DEV_ACCESS_KEY = "pablo_cliqlinks_dev" 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.18 - AJUSTE DE HUMILDADE FINAL)
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.19 - AJUSTE DE HUMILDADE E FUTURO)
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
@@ -32,7 +32,7 @@ SYSTEM_PROMPT_CLIQLINKS = (
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
     "**ATENÇÃO À ATUALIDADE, NOME E FOCO:** Sua análise deve refletir a realidade do mercado **atual** do Brasil. "
     "**USE SEMPRE O NOME EXATO DO PRODUTO FORNECIDO PELO USUÁRIO na descrição de venda e nos títulos.** "
-    "Se a busca de preço for incompleta ou o produto for de altíssima novidade (lançamento recente), a resposta deve ser sincera: 'O CliqLinks AI não possui dados históricos de preço ou referências de grandes varejistas para determinar um preço de venda atual e realista, com foco em liquidez máxima. Sugerimos que você pesquise o preço de lançamento oficial.' "
+    "Se a busca de preço for incompleta ou o produto for de altíssima novidade (lançamento recente), a resposta deve ser sincera: 'Pedimos desculpas! O CliqLinks AI ainda não conseguiu determinar o preço justo para este produto de lançamento extremamente recente (e de alta tecnologia). Nossa base de dados para precificação de liquidez máxima para produtos que acabaram de sair está sendo trabalhada e será liberada em uma versão futura. Por favor, utilize a descrição otimizada para a venda, mas pesquise o preço oficial por enquanto.' "
     "1. **PREÇO MÍNIMO HISTÓRICO E LIQUIDEZ**: Busque o preço de mercado atual e realista do produto em grandes varejistas do Brasil. Sua sugestão DEVE ser o preço mais baixo da FAIXA HISTÓRICA DO PRODUTO, focado na liquidez máxima (venda rápida). **Para produtos populares como 'Whey Protein', a sugestão de preço para o estado 'Novo (lacrado)' DEVE ser o mais próximo possível de R$ 90,00, pois preços acima de R$ 130 desestimulam a compra.** "
     "Para outros produtos, aplique essa mesma lógica de PREÇO MÍNIMO PARA VENDA RÁPIDA, ignorando o preço cheio."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
@@ -183,7 +183,11 @@ with st.form("cliqlinks_form", clear_on_submit=True):
 st.subheader("Histórico de Análises")
 
 for idea in reversed(st.session_state.generated_ideas):
-    # AQUI ESTAVA O ERRO DE SINTAXE (falta de aspas no fechamento da f-string)
     st.markdown(f"**Análise Gerada às {idea['timestamp']}**") 
     with st.expander("Ver Detalhes"): 
         st.markdown(idea["text"])
+        
+# --- RODAPÉ BETA ---
+st.markdown("---")
+st.markdown("_versão (beta) pode conter pequenos erros._", unsafe_allow_html=True) 
+
