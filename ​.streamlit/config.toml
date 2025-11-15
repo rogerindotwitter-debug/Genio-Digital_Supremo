@@ -1,7 +1,7 @@
 [theme]
-# Tema Púrpura e Laranja (Moderno e Divertido)
-primaryColor="#9370DB"  # Medium Purple (Cor principal, puxando o roxo da logo)
-backgroundColor="#121212" # Cinza Escuro (Fundo moderno, com mais profundidade que o preto puro)
-secondaryBackgroundColor="#FF8C00" # Dark Orange (Cor do Fênix, para destaque em inputs/sidebar)
+# Tema Púrpura e Laranja (Moderno e Divertido para CliqLinks)
+primaryColor="#9370DB"  # Medium Purple (Roxo da sua logo)
+backgroundColor="#121212" # Cinza Escuro (Fundo moderno/confortável, melhor que preto puro)
+secondaryBackgroundColor="#FF8C00" # Dark Orange (Laranja para botões de destaque)
 textColor="#FFFFFF" # Texto branco
 font="sans serif"
