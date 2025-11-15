@@ -18,8 +18,7 @@ client = genai.Client(api_key=API_KEY)
 
 
 # ===============================================
-# INSTRUÇÃO DE SISTEMA GLOBAL (V2.11 - PREÇO MÍNIMO ABSOLUTO)
-# *** Esta instrução força o preço para o valor mínimo competitivo. ***
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.12 - PREÇO MÍNIMO ABSOLUTO)
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
@@ -95,17 +94,23 @@ with st.sidebar:
     st.title("🔗 CliqLinks AI")
     st.subheader("Seu Assistente de Vendas Pessoal")
     st.markdown("---")
-    st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
-    st.progress(st.session_state.idea_count / 5)
+    # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
+    st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **7**")
+    st.progress(st.session_state.idea_count / 7)
     
     # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
-    if st.session_state.idea_count >= 5:
-        st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
-        st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
+    # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
+    if st.session_state.idea_count >= 7:
+        # AQUI ESTÁ A MUDANÇA DE TEXTO DE 5 PARA 7
+        st.error("🚨 Limite de 7 Ideias Gratuitas Atingido!")
+        # AQUI ESTÁ A MUDANÇA DE TEXTO DE 20 LINKS PARA ILIMITADO
+        st.warning("Para liberar o acesso ILIMITADO, você terá que pagar R$ 5,00/mês.")
         st.markdown('***Clique aqui para Desbloquear:***')
         
-        # 🚨🚨🚨 COLE SEU LINK DE PAGAMENTO AQUI DENTRO DAS ASPAS 🚨🚨🚨
-        LINK_PAGAMENTO = "LINK_DO_SEU_PAGAMENTO_AQUI" 
+        # 🚨🚨🚨 LINK DE PAGAMENTO STRIPE - LINK DE TESTE! 🚨🚨🚨
+        # Lembre-se: Você DEVE clicar em "Ativar pagamentos" no Stripe e 
+        # gerar um novo link de produção para cobrar de verdade!
+        LINK_PAGAMENTO = "https://buy.stripe.com/test_28E14oF6mFS3" 
         
         st.markdown(f"[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado]({LINK_PAGAMENTO})", unsafe_allow_html=True)
     
@@ -134,11 +139,13 @@ with st.form("cliqlinks_form", clear_on_submit=True):
         options=["Novo (lacrado)", "Semi-novo (pouco uso)", "Usado (com marcas)", "Antigo/Colecionável"]
     )
     
+    # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
     submitted = st.form_submit_button("💰 Gerar Análise de Venda!", 
-                                      disabled=st.session_state.idea_count >= 5)
+                                      disabled=st.session_state.idea_count >= 7)
 
     if submitted:
-        if st.session_state.idea_count < 5:
+        # AQUI ESTÁ A MUDANÇA DE 5 PARA 7
+        if st.session_state.idea_count < 7:
             if not product_description:
                  st.error("Por favor, preencha a descrição do produto.")
                  st.stop()
