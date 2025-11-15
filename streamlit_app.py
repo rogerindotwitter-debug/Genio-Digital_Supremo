@@ -17,14 +17,16 @@ if not API_KEY:
 client = genai.Client(api_key=API_KEY)
 
 
-# INSTRUÇÃO DE SISTEMA GLOBAL (O CÉREBRO DO CLIQLINKS)
-# *** NOVO PROMPT V2.6: AGRESSIVIDADE NO PREÇO MAIS BAIXO E REALISTA ***
+# ===============================================
+# INSTRUÇÃO DE SISTEMA GLOBAL (V2.7 - ESTABILIDADE E LIQUIDEZ)
+# *** Esta instrução garante que o preço seja justo e NÃO extrapole. ***
+# ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
     "de pequenos e médios vendedores, garantindo descrições profissionais e preços justos. "
     "Nunca mencione o Google ou a Gemini. Diga que você é o CliqLinks AI. "
     "Ao receber a descrição de um produto e seu estado (novo, seminovo, usado, antigo), você deve: "
-    "1. **PESQUISAR O PREÇO MAIS BAIXO E COMPETITIVO**: Busque o preço em grandes varejistas online do Brasil (Amazon, Mercado Livre, Netshoes, etc.). Sua sugestão DEVE ser o PREÇO MAIS BAIXO e REALISTA encontrado, focado na liquidez e venda rápida. **SE O PRODUTO FOR DE CONSUMO POPULAR (EX: SUPLEMENTOS), PRIORIZE A FAIXA DE PREÇO MAIS BARATA DO MERCADO** e evite preços inflacionados para que o vendedor consiga vender rapidamente. "
+    "1. **PREÇO DE VENDA RÁPIDA E COMPETITIVO**: Busque o preço em grandes varejistas online do Brasil. Sua sugestão DEVE ser o PREÇO COM FOCO NA LIQUIDEZ MÁXIMA, garantindo que o vendedor consiga vender o produto rapidamente. **IGNORE PREÇOS DE TABELA OU INFLACIONADOS.** Baseie sua análise no preço que oferece maior atratividade de compra imediata, especialmente para itens populares (como suplementos e eletrônicos), sugerindo o preço de liquidez (venda rápida) e não o preço cheio."
     "2. Gerar uma descrição de venda profissional, persuasiva e otimizada para marketplaces/redes sociais. "
     "3. Sugerir 3 títulos (links) de chamada de venda (Ex: 'Imperdível!', 'Última Chance!'). "
     "**O formato da sua resposta deve ser sempre em Markdown, clara e em seções:** "
@@ -32,6 +34,7 @@ SYSTEM_PROMPT_CLIQLINKS = (
     "## 📝 Descrição Otimizada\n[Resposta de descrição]\n\n"
     "## 🔗 Títulos CliqLinks (Links de Venda)\n[Resposta de 3 títulos/chamadas]"
 )
+
 
 # Inicializa o estado de sessão
 if "generated_ideas" not in st.session_state:
@@ -95,13 +98,16 @@ with st.sidebar:
     st.markdown(f"**Ideias Geradas (Grátis):** **{st.session_state.idea_count}** de **5**")
     st.progress(st.session_state.idea_count / 5)
     
-    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00)
+    # IMPLEMENTAÇÃO DE PAGAMENTO (R$ 5,00) - AQUI ESTÁ A CHAVE!
     if st.session_state.idea_count >= 5:
         st.error("🚨 Limite de 5 Ideias Gratuitas Atingido!")
         st.warning("Para liberar o acesso ILIMITADO (20 links/dia), você terá que pagar R$ 5,00/mês.")
         st.markdown('***Clique aqui para Desbloquear:***')
-        # ESTE É O LOCAL PARA COLAR O SEU LINK DE PAGAMENTO DO STRIPE
-        st.markdown("[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado](LINK_DO_SEU_PAGAMENTO_STRIPE_AQUI)", unsafe_allow_html=True)
+        
+        # 🚨🚨🚨 COLE SEU LINK DE PAGAMENTO AQUI DENTRO DAS ASPAS 🚨🚨🚨
+        LINK_PAGAMENTO = "LINK_DO_SEU_PAGAMENTO_AQUI" 
+        
+        st.markdown(f"[Pagar R$ 5,00 e Acessar o CliqLinks Ilimitado]({LINK_PAGAMENTO})", unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("• **Criador:** Pablo Nascimento")
