@@ -19,7 +19,6 @@ client = genai.Client(api_key=API_KEY)
 
 # ===============================================
 # INSTRUÇÃO DE SISTEMA GLOBAL (V2.10 - PRECIFICAÇÃO CONDICIONAL)
-# *** Esta instrução trata produtos 'Novos' de forma diferente. ***
 # ===============================================
 SYSTEM_PROMPT_CLIQLINKS = (
     "Você é o CliqLinks AI, um assistente de vendas e especialista em precificação. Sua missão é maximizar as vendas "
@@ -83,7 +82,7 @@ def reset_session():
      st.rerun()
 
 # ====================================================================
-# *** LOGO E URL DA LOGO (CONFIRMADO E FUNCIONANDO) ***
+# URL DA LOGO (CONFIRMADO E FUNCIONANDO)
 # ====================================================================
 LOGO_URL = "https://raw.githubusercontent.com/rogerindotwitter-debug/Genio-Digital_Supremo/main/logo_cliqlinks_ai.png"
 # ====================================================================
@@ -156,5 +155,7 @@ with st.form("cliqlinks_form", clear_on_submit=True):
 # --- EXIBIÇÃO DAS IDEIAS GERADAS ---
 st.subheader("Histórico de Análises")
 
+# A CORREÇÃO ESTÁ AQUI: GARANTINDO QUE A ASPA DE F-STRING ESTEJA CORRETA
 for idea in reversed(st.session_state.generated_ideas):
-    with st.expander(f"Análise Ger
+    with st.expander(f"Análise Gerada às {idea['timestamp']}"): 
+        st.markdown(idea["text"])
